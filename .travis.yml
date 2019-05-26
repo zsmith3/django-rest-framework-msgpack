@@ -1,13 +1,28 @@
+dist: xenial
 language: python
+
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
+  - 2.7
+  - 3.5
+  - 3.6
+  - 3.7
+
 env:
-  - DJANGO_VERSION=1.8
-  - DJANGO_VERSION=1.9
-  - DJANGO_VERSION=1.10
+  - DJANGO_VERSION=">=1.11,<2"
+  - DJANGO_VERSION=">=2.1,<2.2"
+  - DJANGO_VERSION=">=2.2,<2.3"
+  - DRF_VERSION=">=3.8,<3.9"
+  - DRF_VERSION=">3.9,<3.10"
+
+matrix:
+  exclude:
+  - python: 2.7
+    env: DJANGO_VERSION=">=2.1,<2.2"
+  - python: 2.7
+    env: DJANGO_VERSION=">=2.2,<2.3"
+
 install:
-  - pip install -q Django==$DJANGO_VERSION
-  - pip install -q -r requirements.txt
+  - pip install -q "msgpack-python>=0.5.6" "python-dateutil>=2.8"
+  - pip install "djangorestframework${DRF_VERSION}" "django${DJANGO_VERSION}"
+
 script: python manage.py test
