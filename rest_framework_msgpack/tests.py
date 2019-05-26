@@ -2,7 +2,10 @@ import decimal
 import datetime
 from io import BytesIO
 from django.test import TestCase
-from rest_framework_msgpack.renderers import MessagePackRenderer
+
+from rest_framework.exceptions import ParseError
+
+from rest_framework_msgpack.renderers import MessagePackRenderer, MessagePackEncoder
 from rest_framework_msgpack.parsers import MessagePackParser
 
 
@@ -74,3 +77,22 @@ class MessagePackRendererTests(TestCase):
         content = renderer.render(obj, 'application/msgpack')
         data = parser.parse(BytesIO(content))
         self.assertEquals(obj, data)
+
+    def test_handle_invalid_payload(self):
+        invalid_msgpack_repr = b'\xa1\xa3foo\x92\xa3bar\xa4baz'
+        parser = MessagePackParser()
+        with self.assertRaises(ParseError):
+            parser.parse(invalid_msgpack_repr)
+
+    def test_handle_empty_data_render(self):
+        renderer = MessagePackRenderer()
+        self.assertEqual(renderer.render(data=None), '')
+
+    def test_renderer_not_encoding_unhandled_data(self):
+        encoder = MessagePackEncoder()
+
+        class DummyClass:
+            foo = 'bar'
+
+        dummy_instance = DummyClass()
+        self.assertEqual(encoder.encode(dummy_instance), dummy_instance)
