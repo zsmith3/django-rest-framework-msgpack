@@ -1,7 +1,7 @@
 import decimal
 import msgpack
 from dateutil.parser import parse
-from django.utils.six import text_type
+from six import text_type
 
 
 from rest_framework.parsers import BaseParser
